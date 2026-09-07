@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5a623">
+<title>LINE BOARD PRO — PPC Control</title>
+<style>
+:root{--bg:#0f1318;--panel:#171d24;--panel2:#1e2630;--line:#303a46;--text:#f2f4f7;--muted:#8f9aaa;--amber:#f5a623;--green:#35c58b;--red:#ed5b52;--blue:#5b95ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Inter,Segoe UI,Arial,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.login{min-height:100vh;display:grid;place-items:center;padding:18px;background:radial-gradient(circle at 20% 15%,#f5a62316,transparent 35%),radial-gradient(circle at 80% 85%,#5b95ff10,transparent 35%),var(--bg)}
+.loginbox{width:min(440px,100%);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:30px;box-shadow:0 25px 80px #0008}.brand{font-weight:900;letter-spacing:1px;font-size:18px}.eyebrow{font:11px ui-monospace,monospace;color:var(--muted);letter-spacing:2px;text-transform:uppercase}.login h1{font-size:32px;margin:8px 0}.sub{color:var(--muted);line-height:1.55}
+label{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:17px 0 7px}input,select,textarea{width:100%;background:#0e1217;color:var(--text);border:1px solid var(--line);border-radius:7px;padding:11px;outline:0}input:focus,select:focus,textarea:focus{border-color:var(--amber)}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:7px;font-weight:700}.btn:hover{filter:brightness(1.1)}.primary{background:var(--amber);border:0;color:#171100;width:100%;padding:12px;border-radius:7px;font-weight:900;margin-top:18px}.danger{color:#ffaaa4;border-color:#74302b}.green{background:#17392d;color:#9af0c9;border-color:#285d49}.blue{background:#182d50;color:#bcd2ff;border-color:#315a98}
+.app{min-height:100vh;display:flex}.side{width:235px;background:var(--panel);border-right:1px solid var(--line);padding:17px 0;display:flex;flex-direction:column}.brandbox{padding:4px 18px 18px;border-bottom:1px solid var(--line)}.brandbox small{color:var(--muted)}
+.nav{padding-top:10px}.nav button{width:100%;border:0;border-left:3px solid transparent;background:transparent;color:var(--muted);padding:12px 18px;text-align:left;font-weight:700}.nav button.active{color:#fff;background:var(--panel2);border-left-color:var(--amber)}
+.me{margin-top:auto;border-top:1px solid var(--line);padding:14px 18px}.me b{display:block}.me span{color:var(--muted);font-size:12px}.main{flex:1;min-width:0}.top{height:68px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 25px;gap:15px}.top h2{margin:0;font-size:22px}.online{color:var(--green);font-size:12px}.content{max-width:1300px;margin:auto;padding:22px 25px 60px}
+.cards{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.card,.panel,.batch{background:var(--panel);border:1px solid var(--line);border-radius:9px}.card{padding:15px}.card .n{font:800 27px ui-monospace,monospace}.card .l{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:17px 0}.toolbar input{flex:1;min-width:210px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:12px}.batch{padding:16px;position:relative}.batch:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--amber);border-radius:9px 0 0 9px}.batch.h:before{background:var(--red)}.batch.done:before{background:var(--green)}.batch h3{font:800 17px ui-monospace,monospace;margin:0}.meta{color:var(--muted);font-size:12px;margin-top:5px;line-height:1.5}.tag{display:inline-block;margin-top:11px;padding:4px 8px;border-radius:4px;background:#493814;color:#ffd98f;font-size:10px;font-weight:900}.tag.hold{background:#4c211e;color:#ffaaa4}.tag.done{background:#173a2e;color:#9af0c9}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.panel{padding:18px;margin-bottom:15px}.panel h3{margin:0 0 8px}.muted{color:var(--muted)}.notice{background:#182d50;border:1px solid #315a98;color:#c8d8ff;border-radius:7px;padding:12px;font-size:12px;line-height:1.5;margin-bottom:15px}.warning{background:#4b3214;border:1px solid #79541c;color:#ffdc99}
+table{width:100%;border-collapse:collapse;min-width:700px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);font-size:12px}th{color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:1px}
+.modal{position:fixed;inset:0;background:#000b;display:grid;place-items:center;padding:16px;z-index:10}.modalbox{width:min(650px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:21px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:950px){.cards{grid-template-columns:repeat(3,1fr)}.side{width:200px}}
+@media(max-width:700px){.app{display:block}.side{width:100%;display:block;padding:8px}.brandbox{padding:5px 12px 9px;border:0}.nav{display:flex;overflow:auto;padding:0}.nav button{white-space:nowrap;padding:9px 12px;border-left:0;border-bottom:3px solid transparent}.nav button.active{border-bottom-color:var(--amber)}.me{display:none}.top{height:auto;padding:13px 15px}.content{padding:14px}.cards{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}}
+
+
+.casting-sheet{border:1px solid #33404d;border-radius:10px;overflow:hidden;background:#f4f5f6;color:#111}
+.sheet-date{text-align:center;background:#fff500;font-weight:700;font-size:16px;padding:8px;border-bottom:1px solid #27313b}
+.sheet-plan{text-align:center;background:#18d9e8;font-weight:700;padding:7px;letter-spacing:.06em}
+.casting-sheet .casting-grid{padding:0;gap:0;grid-template-columns:1fr 1fr}
+.casting-sheet .furnace-card{border:0;border-radius:0;background:#fff;color:#111}
+.casting-sheet .furnace-card+ .furnace-card{border-left:2px solid #27313b}
+.casting-sheet .furnace-head{justify-content:center;background:#6f9fe8;color:#111;border-radius:0;font-size:16px;padding:7px;border-bottom:1px solid #27313b}
+.casting-sheet .furnace-head span{font-size:12px;margin-left:10px}
+.casting-sheet .casting-table{font-size:13px}
+.casting-sheet .casting-table th,.casting-sheet .casting-table td{border:1px solid #27313b;padding:7px 8px}
+.casting-sheet .casting-table th{background:#fff500;color:#111;opacity:1;text-transform:none;font-size:12px}
+.casting-sheet .casting-table td{background:#fff;color:#111}
+.head-actions{display:flex;gap:10px;align-items:center}
+.head-actions input{height:42px}
+.summary-line{display:flex;justify-content:space-between;gap:12px}
+@media(max-width:1000px){.casting-sheet .casting-grid{grid-template-columns:1fr}.casting-sheet .furnace-card+.furnace-card{border-left:0;border-top:2px solid #27313b}}
+
+/* Casting Plan — production-board styling */
+.casting-board{overflow:hidden}
+.casting-title{display:flex;justify-content:space-between;align-items:center;padding:4px 4px 18px;border-bottom:1px solid var(--border,#2f3945)}
+.casting-title h3{margin:0;letter-spacing:.08em}
+.date-pill{padding:7px 12px;border:1px solid var(--border,#2f3945);border-radius:7px;background:var(--panel2,#11161c);font-size:12px}
+.casting-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding-top:18px}
+.furnace-card{border:1px solid var(--border,#2f3945);border-radius:10px;overflow:hidden;background:var(--panel,#171d24)}
+.furnace-head{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;background:#202833;border-bottom:1px solid var(--border,#2f3945)}
+.furnace-head span{font-size:12px;opacity:.7}
+.casting-table{width:100%;border-collapse:collapse;font-size:13px}
+.casting-table th,.casting-table td{padding:11px 9px;border-bottom:1px solid #2b333d;text-align:left;white-space:nowrap}
+.casting-table th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.72}
+.casting-table tr:last-child td{border-bottom:0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.kpi{border:1px solid var(--border,#2f3945);border-radius:9px;padding:14px 16px;background:var(--panel,#171d24)}
+.kpi span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.7}
+.kpi b{display:block;font-size:23px;margin-top:6px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:10px}
+.small{font-size:11px;padding:6px 9px}
+@media(max-width:900px){.casting-grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.page-head{align-items:stretch;flex-direction:column}}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;padding:22px;z-index:9999}
+.modal-card{width:min(720px,96vw);max-height:90vh;overflow:auto;background:#171d24;border:1px solid #394653;border-radius:10px;box-shadow:0 24px 70px rgba(0,0,0,.45);padding:22px;color:#f4f6f8}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}.modal-head h2{margin:0 0 5px}.icon-btn{background:transparent;border:0;color:#b8c2ce;font-size:28px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="root"></div><div id="modal"></div>
+<script>
+const DEMO_USERS=[{username:"Aman132",password:"Aman@1324",name:"Aman132",role:"Admin"}];
+const STAGES=["Casting","EPIC Cutting","Manual Cutting","SFG Stock 2","Charge Ready","HOMO 1","HOMO 2","Cooling","Completed","Dispatch"];
+let cfg=JSON.parse(localStorage.getItem("lb_cfg")||"{}");
+let castingPlans=JSON.parse(localStorage.getItem("lb_casting_plans")||"[]");
+let users=JSON.parse(localStorage.getItem("lb_users")||"null"); if(!Array.isArray(users)||!users.length)users=DEMO_USERS;
+let batches=JSON.parse(localStorage.getItem("lb_batches")||"[]");
+let customers=JSON.parse(localStorage.getItem("lb_customers")||"[]");
+let sfgStock=JSON.parse(localStorage.getItem("lb_sfg_stock")||"[]");
+let fgStock=JSON.parse(localStorage.getItem("lb_fg_stock")||"[]");
+let homoDetails=JSON.parse(localStorage.getItem("lb_homo_details")||"[]");
+let productionSummary=JSON.parse(localStorage.getItem("lb_production_summary")||"[]");
+let state={user:null,view:"dashboard",q:"",filter:"All",apiOnline:false};
+let sessionToken=sessionStorage.getItem("lb_session")||"";
+let lastActivity=Date.now();
+const IDLE_TIMEOUT_MS=30*60*1000;
+let editBatchId=null;
+function saveCustomers(){localStorage.setItem("lb_customers",JSON.stringify(customers))}
+function saveStock(){
+ localStorage.setItem("lb_sfg_stock",JSON.stringify(sfgStock));
+ localStorage.setItem("lb_fg_stock",JSON.stringify(fgStock));
+ localStorage.setItem("lb_homo_details",JSON.stringify(homoDetails));
+ localStorage.setItem("lb_production_summary",JSON.stringify(productionSummary));
+}
+function targetStatus(b){
+ if(!b.targetDate)return {text:"No Target",cls:""};
+ const target=new Date((b.targetDate||"")+"T"+(b.targetTime||"23:59"));
+ if(b.dispatchTime || b.stage==="Dispatch"){
+   const done=new Date(b.dispatchTime||b.updated);
+   return done<=target?{text:"Target Met",cls:"done"}:{text:"Late",cls:"hold"};
+ }
+ return new Date()>target?{text:"Overdue",cls:"hold"}:{text:"On Track",cls:""};
+}
+
+function save(){localStorage.setItem("lb_batches",JSON.stringify(batches));localStorage.setItem("lb_users",JSON.stringify(users));localStorage.setItem("lb_casting_plans",JSON.stringify(castingPlans))}
+function now(){return new Date().toISOString()}
+function billetSummary(b){
+ const total=Number(b.totalBillets||0), rejected=Number(b.rejectedBillets||0);
+ const accepted=Math.max(0,total-rejected);
+ const mt=Number(b.billetMT||0);
+ return {total,rejected,accepted,mt};
+}
+function updateBilletSummaryUI(b){
+ const s=billetSummary(b);
+ const el=document.getElementById("billetSummary");
+ if(el)el.innerHTML=`Total Billets: <b>${s.total}</b> · Rejected: <b>${s.rejected}</b> · Accepted: <b>${s.accepted}</b> · Billet Weight: <b>${s.mt.toFixed(3)} MT</b>`;
+}
+
+function fmt(ts){return ts?new Date(ts).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"}):"-"}
+function duration(ms){
+ if(!ms||ms<0)return "-";
+ let m=Math.floor(ms/60000), h=Math.floor(m/60); m%=60;
+ return (h? h+"h ":"")+m+"m";
+}
+function ensureTiming(b){
+ if(!b.timings)b.timings={};
+ if(!b.timings[b.stage])b.timings[b.stage]={start:b.updated||b.created||now()};
+}
+function startTiming(b,stage,ts){
+ if(!b.timings)b.timings={};
+ if(!b.timings[stage])b.timings[stage]={start:ts};
+}
+function finishTiming(b,stage,ts){
+ if(!b.timings)b.timings={};
+ if(b.timings[stage]&&!b.timings[stage].end){
+   b.timings[stage].end=ts;
+   b.timings[stage].durationMs=new Date(ts)-new Date(b.timings[stage].start);
+ }
+}
+function totalProcessTime(b){
+ if(!b.created)return "-";
+ const end=b.dispatchTime||b.updated||now();
+ return duration(new Date(end)-new Date(b.created));
+}
+
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function role(){return state.user?.role}
+function admin(){return role()==="Admin"}
+function canEdit(){return ["Admin","Supervisor","Operator"].includes(role())}
+function canHold(){return ["Admin","Supervisor","QC"].includes(role())}
+
+function render(){
+ const root=document.getElementById("root");
+ if(!state.user){root.innerHTML=loginPage();return}
+ root.innerHTML=`<div class="app"><aside class="side"><div class="brandbox"><div class="brand">▣ LINE BOARD PRO</div><small>PPC CONTROL SYSTEM</small></div><nav class="nav">
+ <button class="${state.view==="dashboard"?"active":""}" onclick="state.view='dashboard';render()">Dashboard</button>
+ <button class="${state.view==="casting"?"active":""}" onclick="state.view='casting';render()">Casting Plan</button>
+ <button class="${state.view==="batches"?"active":""}" onclick="state.view='batches';render()">Batches</button>
+ <button class="${state.view==="sfg"?"active":""}" onclick="state.view='sfg';render()">SFG Stock</button>
+ <button class="${state.view==="fg"?"active":""}" onclick="state.view='fg';render()">FG Stock</button>
+ <button class="${state.view==="homo"?"active":""}" onclick="state.view='homo';render()">HOMO Details</button>
+ <button class="${state.view==="customers"?"active":""}" onclick="state.view='customers';render()">Customers</button>
+ <button class="${state.view==="users"?"active":""}" onclick="state.view='users';render()">Users</button>
+ <button class="${state.view==="google"?"active":""}" onclick="state.view='google';render()">Google Sheet</button>
+ <button class="${state.view==="settings"?"active":""}" onclick="state.view='settings';render()">Settings</button>
+ </nav>
+ <div class="me"><b>${esc(state.user.name)}</b><span>${esc(state.user.role)}</span><br><button class="btn" style="margin-top:9px;width:100%" onclick="logout()">Sign out</button></div></aside>
+ <main class="main"><header class="top"><h2>${({dashboard:"Dashboard",casting:"Casting Plan",batches:"Batches",sfg:"SFG Stock",fg:"FG Stock",homo:"Current HOMO Details",customers:"Customers",users:"User Management",google:"Google Live Sheet",settings:"Settings"})[state.view]}</h2><div class="online">● ${cfg.apiUrl?"Cloud connector configured":"Local mode"}</div></header><section class="content">${page()}</section></main></div>`;
+}
+function loginPage(){return `<div class="login"><div class="loginbox"><div class="eyebrow">PPC Control System</div><h1>PPC Control System</h1><p class="sub">One control screen for casting, SFG, Homo 1, Homo 2, cutting and completed batches.</p>
+<label>Username</label><input id="lu" placeholder="Username" autocomplete="username"><label>Password</label><input id="lp" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"><button class="primary" onclick="login()">SIGN IN →</button><div id="loginerr" style="color:#ffaaa4;margin-top:10px;font-size:12px"></div>
+<button class="btn" style="width:100%;margin-top:10px" onclick="signupModal()">New user? Create account</button><p class="muted" style="margin-top:15px;font-size:11px">Demo Admin: <b>Aman132</b> &nbsp; Password: <b>Aman@1324</b></p></div></div>`}
+async function login(){
+ const u=document.getElementById("lu")?.value.trim()||"";
+ const p=document.getElementById("lp")?.value||"";
+ const err=document.getElementById("loginerr");
+ if(err)err.textContent="";
+ if(!u||!p){if(err)err.textContent="Enter username and password.";return;}
+
+ // Local/demo mode: works immediately without any Google Apps Script URL.
+ if(!cfg.apiUrl){
+   const found=users.find(x=>String(x.username).toLowerCase()===u.toLowerCase()&&String(x.password)===p);
+   if(!found){if(err)err.textContent="Invalid username or password.";return;}
+   state.user={username:found.username,name:found.name,role:found.role,mobile:found.mobile||""};
+   state.apiOnline=false;
+   sessionToken="";
+   touchActivity();
+   render();
+   return;
+ }
+
+ // Secure Cloud mode.
+ try{
+   const r=await api("login",{username:u,password:p},false);
+   if(!r||!r.ok){if(err)err.textContent=(r&&r.error)||"Invalid username or password.";return;}
+   finishLogin(r);
+ }catch(x){
+   if(err)err.textContent="Unable to connect to Secure Cloud. Check the Apps Script URL.";
+ }
+}
+async function logout(){
+ try{if(cfg.apiUrl&&sessionToken)await api("logout",{},true)}catch(x){}
+ sessionToken="";sessionStorage.removeItem("lb_session");state.user=null;state.apiOnline=false;render();
+}
+function touchActivity(){lastActivity=Date.now()}
+function checkIdle(){if(state.user&&Date.now()-lastActivity>IDLE_TIMEOUT_MS){alert("Session expired after 30 minutes of inactivity.");logout()}}
+["click","keydown","mousemove","touchstart"].forEach(ev=>window.addEventListener(ev,()=>{if(state.user)touchActivity()},{passive:true}));
+setInterval(checkIdle,60000);
+function page(){
+ if(state.view==="dashboard")return dashboard();
+ if(state.view==="casting")return castingPlanPage();
+ if(state.view==="batches")return batchesPage();
+ if(state.view==="sfg")return sfgPage();
+ if(state.view==="fg")return fgPage();
+ if(state.view==="homo")return homoPage();
+ if(state.view==="customers")return customersPage();
+ if(state.view==="users")return usersPage();
+ if(state.view==="google")return googlePage();
+ return settingsPage();
+}
+
+function castingPlanPage(){
+ const dateParam=(window.__castingDate||todayISO());
+ const plans=castingPlans.filter(x=>x.date===dateParam).sort((a,b)=>String(a.inTime||"").localeCompare(String(b.inTime||"")));
+ const f1=plans.filter(x=>x.furnace==="Furnace 1"),f2=plans.filter(x=>x.furnace==="Furnace 2");
+ const day=new Date(dateParam+"T00:00:00").toLocaleDateString("en-IN",{weekday:"short"});
+ const row=p=>`<tr><td>${esc(p.charge)}</td><td>${esc(p.dia)}</td><td>${esc(formatTime(p.inTime))}</td><td>${esc(formatTime(p.outTime))}</td><td>${esc(p.internalCode)}</td><td><strong>${esc(p.batch)}</strong></td><td><button class="small" onclick="openCastingPlan('${p.id}')">Edit</button> <button class="small danger" onclick="deleteCastingPlan('${p.id}')">Delete</button></td></tr>`;
+ const table=(name,arr)=>`<section class="furnace-card"><div class="furnace-head"><strong>${name}</strong><span>${arr.length} planned</span></div><div class="table-wrap"><table class="casting-table"><thead><tr><th>Charge No</th><th>Dia</th><th>In Time</th><th>Out Time</th><th>Internal Code</th><th>Batch No</th><th>Action</th></tr></thead><tbody>${arr.map(row).join("")||`<tr><td colspan="7" class="empty">No casting plan entered.</td></tr>`}</tbody></table></div></section>`;
+ return `<div class="page-head"><div><h2>Casting Plan</h2><p class="muted">Daily furnace schedule</p></div><div class="head-actions"><input id="castingDate" type="date" value="${dateParam}" onchange="window.__castingDate=this.value;render()"><button class="primary" onclick="openCastingPlan()">+ Add Casting</button></div></div>
+ <div class="casting-sheet">
+  <div class="sheet-date">${esc(new Date(dateParam+"T00:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"}).toUpperCase())}</div>
+  <div class="sheet-plan">PLAN</div>
+  <div class="casting-grid">${table("Furnace 1",f1)}${table("Furnace 2",f2)}</div>
+ </div>
+ <div class="panel" style="margin-top:16px"><h3>Daily Summary</h3><div class="summary-line"><span>${day} · ${plans.length} charges planned</span><span>Furnace 1: ${f1.length} &nbsp; | &nbsp; Furnace 2: ${f2.length}</span></div></div>`;
+}
+function formatTime(t){
+ if(!t)return "-";
+ const [h,m]=String(t).split(":").map(Number);
+ if(Number.isNaN(h)||Number.isNaN(m))return t;
+ const ap=h>=12?"PM":"AM",hh=(h%12)||12;
+ return `${hh}:${String(m).padStart(2,"0")} ${ap}`;
+}
+
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function openCastingPlan(id=null){
+ const p=id?castingPlans.find(x=>x.id===id):{id:"",date:(window.__castingDate||todayISO()),furnace:"Furnace 1",charge:"",dia:"",inTime:"",outTime:"",internalCode:"",batch:""};
+ const root=document.getElementById("modalroot")||document.getElementById("modal")||document.body;
+ const old=document.getElementById("castingModal"); if(old)old.remove();
+ const wrap=document.createElement("div"); wrap.id="castingModal"; wrap.className="modal-backdrop";
+ wrap.innerHTML=`<div class="modal-card" role="dialog" aria-modal="true">
+   <div class="modal-head"><div><h2>${id?"Edit Casting Plan":"Add Casting Plan"}</h2><p class="muted">Enter the furnace charge schedule.</p></div><button class="icon-btn" onclick="document.getElementById('castingModal')?.remove()">×</button></div>
+   <div class="form-grid">
+    <label>Plan Date<input id="cpdate" type="date" value="${esc(p.date||"")}"></label>
+    <label>Furnace<select id="cpf"><option value="Furnace 1" ${p.furnace==="Furnace 1"?"selected":""}>Furnace 1</option><option value="Furnace 2" ${p.furnace==="Furnace 2"?"selected":""}>Furnace 2</option></select></label>
+    <label>Charge No<input id="cpcharge" value="${esc(p.charge||"")}" placeholder="H 588 F1"></label>
+    <label>Dia<input id="cpdia" value="${esc(p.dia||"")}" placeholder="7"></label>
+    <label>In Time<input id="cpin" type="time" value="${esc(p.inTime||"")}"></label>
+    <label>Out Time<input id="cpout" type="time" value="${esc(p.outTime||"")}"></label>
+    <label>Internal Code<input id="cpcode" value="${esc(p.internalCode||"")}" placeholder="6063.05"></label>
+    <label>Batch No<input id="cpbatch" value="${esc(p.batch||"")}" placeholder="770"></label>
+   </div>
+   <div class="actions"><button class="secondary" onclick="document.getElementById('castingModal')?.remove()">Cancel</button><button class="primary" onclick="saveCastingPlan('${esc(p.id||"")}')">Save Casting Plan</button></div>
+ </div>`;
+ (root===document.body?root:root).appendChild(wrap);
+}
+
+function saveCastingPlan(id){
+ const get=n=>document.getElementById(n);
+ const p={id:id||("CP-"+Date.now()),date:get("cpdate")?.value||"",furnace:get("cpf")?.value||"Furnace 1",charge:get("cpcharge")?.value.trim()||"",dia:get("cpdia")?.value.trim()||"",inTime:get("cpin")?.value||"",outTime:get("cpout")?.value||"",internalCode:get("cpcode")?.value.trim()||"",batch:get("cpbatch")?.value.trim()||""};
+ if(!p.date||!p.charge||!p.dia||!p.inTime||!p.outTime||!p.internalCode||!p.batch){
+   alert("Please fill Date, Furnace, Charge No, Dia, In Time, Out Time, Internal Code and Batch No."); return;
+ }
+ if(id){
+   const i=castingPlans.findIndex(x=>x.id===id);
+   if(i<0){alert("Casting plan not found.");return;}
+   castingPlans[i]=p;
+ }else{
+   castingPlans.push(p);
+ }
+ localStorage.setItem("lb_casting_plans",JSON.stringify(castingPlans));
+ document.getElementById("castingModal")?.remove();
+ window.__castingDate=p.date;
+ render();
+}
+
+function editCastingPlan(id){openCastingPlan(id);}
+function deleteCastingPlan(id){if(!confirm("Delete this casting plan?"))return;castingPlans=castingPlans.filter(x=>x.id!==id);save();render();}
+
+function dashboard(){
+ let total=batches.length,hold=batches.filter(b=>b.hold).length,done=batches.filter(b=>b.stage==="Completed").length;
+ return `<div class="cards">${[
+ ["Total Batches",total],["Casting",batches.filter(b=>b.stage==="Casting").length],["HOMO 1",batches.filter(b=>b.stage==="HOMO 1").length],["HOMO 2",batches.filter(b=>b.stage==="HOMO 2").length],["Dispatch",batches.filter(b=>b.stage==="Dispatch").length],["Target Met",batches.filter(b=>targetStatus(b).text==="Target Met").length]
+ ].map(x=>`<div class="card"><div class="n">${x[1]}</div><div class="l">${x[0]}</div></div>`).join("")}</div>
+ <div class="panel" style="margin-top:18px"><h3>Billet Summary</h3>
+ <div class="cards" style="grid-template-columns:repeat(4,1fr);margin-top:12px">
+   <div class="card"><div class="n">${batches.reduce((a,b)=>a+Number(b.totalBillets||0),0)}</div><div class="l">Total Billets</div></div>
+   <div class="card"><div class="n">${batches.reduce((a,b)=>a+Number(b.rejectedBillets||0),0)}</div><div class="l">Rejected Billets</div></div>
+   <div class="card"><div class="n">${batches.reduce((a,b)=>a+Math.max(0,Number(b.totalBillets||0)-Number(b.rejectedBillets||0)),0)}</div><div class="l">Accepted Billets</div></div>
+   <div class="card"><div class="n">${batches.reduce((a,b)=>a+Number(b.billetMT||0),0).toFixed(3)}</div><div class="l">Billet Metric Ton</div></div>
+ </div></div>
+ <div class="panel" style="margin-top:18px"><h3>Customer Target Summary</h3>
+ <div class="cards" style="grid-template-columns:repeat(4,1fr);margin-top:12px">
+   <div class="card"><div class="n">${batches.filter(b=>targetStatus(b).text==="On Track").length}</div><div class="l">On Track</div></div>
+   <div class="card"><div class="n">${batches.filter(b=>targetStatus(b).text==="Target Met").length}</div><div class="l">Target Met</div></div>
+   <div class="card"><div class="n">${batches.filter(b=>targetStatus(b).text==="Overdue").length}</div><div class="l">Overdue</div></div>
+   <div class="card"><div class="n">${customers.length}</div><div class="l">Customers</div></div>
+ </div></div>
+ <div class="panel" style="margin-top:18px"><h3>Stock & Production Overview</h3>
+ <div class="cards" style="grid-template-columns:repeat(4,1fr);margin-top:12px">
+   <div class="card"><div class="n">${sfgStock.reduce((a,r)=>a+Number(r.pcs||0),0)}</div><div class="l">SFG Stock Pcs</div></div>
+   <div class="card"><div class="n">${fgStock.reduce((a,r)=>a+Number(r.availableStockPcs||0),0)}</div><div class="l">FG Available Pcs</div></div>
+   <div class="card"><div class="n">${homoDetails.reduce((a,r)=>a+Number(r.pcs||0),0)}</div><div class="l">Current HOMO Pcs</div></div>
+   <div class="card"><div class="n">${fgStock.reduce((a,r)=>a+Number(r.defectedPcs||0),0)}</div><div class="l">FG Defected Pcs</div></div>
+ </div>
+ <div class="toolbar"><button class="btn" onclick="state.view='sfg';render()">Open SFG Stock</button><button class="btn" onclick="state.view='fg';render()">Open FG Stock</button><button class="btn" onclick="state.view='homo';render()">Current HOMO</button></div></div>
+ <div class="panel"><h3>Production Summary</h3>
+ <div style="overflow:auto"><table><tr><th>Batch No.</th><th>Alloy</th><th>Remarks</th><th>Total Cast</th><th>Dispatch</th><th>FG</th><th>SFG</th><th>Total</th><th>Diff</th><th>Rejection</th></tr>
+ ${productionSummary.map(r=>`<tr><td>${esc(r.batchNo)}</td><td>${esc(r.alloy)}</td><td>${esc(r.remarks)}</td><td>${esc(r.totalCast)}</td><td>${esc(r.dispatch)}</td><td>${esc(r.fg)}</td><td>${esc(r.sfg)}</td><td>${esc(r.total)}</td><td>${esc(r.diff)}</td><td>${esc(r.rejection)}</td></tr>`).join("")||`<tr><td colspan="10" class="muted">No production summary records yet. Add them from Production Summary below.</td></tr>`}
+ </table></div>
+ <div class="actions"><button class="btn" onclick="productionSummaryModal()">+ Add Production Summary</button></div>
+ </div>
+ <div class="panel"><h3>Unpacked / Current HOMO Snapshot</h3>
+ <div class="row">
+   <div><h4 style="margin:0 0 8px">Unpacked Pcs by Alloy</h4><div style="overflow:auto"><table><tr><th>Alloy</th><th>Unpacked Pcs</th><th>Status</th></tr>${fgStock.map(r=>`<tr><td>${esc(r.alloy||"-")}</td><td>${esc(r.unpackedPcs||0)}</td><td>${esc(r.status||"-")}</td></tr>`).join("")||`<tr><td colspan="3" class="muted">No FG records.</td></tr>`}</table></div></div>
+   <div><h4 style="margin:0 0 8px">Current HOMO</h4><div style="overflow:auto"><table><tr><th>Batch</th><th>Alloy</th><th>Diameter</th><th>Pcs</th><th>Qty</th><th>Status</th><th>Charge</th><th>In Time</th><th>Out Time</th><th>Duration</th></tr>${homoDetails.map(r=>`<tr><td>${esc(r.batchNo)}</td><td>${esc(r.alloy)}</td><td>${esc(r.diameter)}</td><td>${esc(r.pcs)}</td><td>${esc(r.quantity)}</td><td>${esc(r.status)}</td><td>${esc(r.chargeNo)}</td><td>${esc(r.inTime||"-")}</td><td>${esc(r.outTime||"-")}</td><td>${esc(homoDuration(r.inTime,r.outTime))}</td></tr>`).join("")||`<tr><td colspan="7" class="muted">No HOMO records.</td></tr>`}</table></div></div>
+ </div>
+ </div>
+ <div class="panel"><h3>Production Flow</h3><p class="muted">1. Casting → 2. EPIC Cutting → 3. Manual Cutting → 4. SFG Stock 2 → 5. Charge Ready → 6. HOMO 1 → 7. HOMO 2 → 8. Cooling → 9. Completed → 10. Dispatch</p>
+ <div class="toolbar"><button class="btn primary" style="width:auto;margin:0" onclick="openBatch()">+ New Batch</button><button class="btn" onclick="state.view='google';render()">Google Sheet</button></div></div>
+ <div class="panel"><h3>Latest Batches</h3>${batches.slice(0,8).map(b=>`<div style="display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:10px 0"><span><b>${esc(b.batch)}</b><br><span class="muted">${esc(b.customer||"No Customer")} · ${esc(b.product)} · Billets ${Number(b.totalBillets||0)} · ${Number(b.billetMT||0).toFixed(3)} MT · Target ${esc(b.targetDate||"-")} · ${targetStatus(b).text}</span></span><span class="tag ${b.hold?"hold":STAGES.indexOf(b.stage)>=8?"done":""}">${b.hold?"HOLD":esc(b.stage)}</span></div>`).join("")||"<p class='muted'>No batches yet.</p>"}</div>`;
+}
+function batchesPage(){
+ batches.forEach(ensureTiming);let q=state.q.toLowerCase(),list=batches.filter(b=>(state.filter==="All"||(state.filter==="On Hold"?b.hold:b.stage===state.filter))&&(!q||(b.batch+" "+b.product+" "+b.charge).toLowerCase().includes(q)));
+ return `<div class="toolbar"><input placeholder="Search batch, alloy/product or charge..." value="${esc(state.q)}" oninput="state.q=this.value;render()"><select onchange="state.filter=this.value"><option>All</option>${STAGES.map(s=>`<option ${state.filter===s?"selected":""}>${s}</option>`).join("")}<option ${state.filter==="On Hold"?"selected":""}>On Hold</option></select>${canEdit()?`<button class="btn primary" style="width:auto;margin:0" onclick="openBatch()">+ New Batch</button>`:""}</div>
+ <div class="grid">${list.map(b=>`<article class="batch ${b.hold?"h":STAGES.indexOf(b.stage)>=8?"done":""}"><h3>${esc(b.batch)}</h3><div class="meta"><b>${esc(b.customer||"No Customer")}</b><br>${esc(b.product)}<br>Qty: ${esc(b.qty||"-")} · Charge: ${esc(b.charge||"-")}<br>Billets: ${Number(b.totalBillets||0)} · Rejected: ${Number(b.rejectedBillets||0)} · MT: ${Number(b.billetMT||0).toFixed(3)}<br>Target: ${esc(b.targetDate||"-")} ${esc(b.targetTime||"")} · ${targetStatus(b).text}</div><span class="tag ${b.hold?"hold":STAGES.indexOf(b.stage)>=8?"done":""}">${b.hold?"ON HOLD":esc(b.stage)}</span>
+<div class="meta" style="margin-top:9px">Step ${Math.max(1,STAGES.indexOf(b.stage)+1)} / ${STAGES.length} · Total time ${totalProcessTime(b)}</div>
+<div class="actions">${canEdit()?`<button class="btn" onclick="nextStage('${b.id}')">Next Stage</button>`:""}${canHold()?`<button class="btn ${b.hold?"green":""}" onclick="toggleHold('${b.id}')">${b.hold?"Release":"Hold"}</button>`:""}<button class="btn" onclick="viewBatch('${b.id}')">Details</button></div></article>`).join("")||"<p class='muted'>No batches found.</p>"}</div>`;
+}
+
+function sfgPage(){
+ let q=state.q.toLowerCase();
+ let list=sfgStock.filter(r=>!q||(String(r.batchNo)+" "+String(r.alloy)+" "+String(r.status)).toLowerCase().includes(q));
+ return `<div class="toolbar"><input placeholder="Search batch, alloy or status..." value="${esc(state.q)}" oninput="state.q=this.value;render()">${canEdit()?`<button class="btn primary" style="width:auto;margin:0" onclick="sfgModal()">+ Add SFG Stock</button>`:""}</div>
+ <div class="panel"><h3>SFG DATA</h3><p class="muted">Matches the SFG stock format from your sheet: Batch Number, Alloy, Diameter, No Of Pcs, Quantity and Status.</p>
+ <div style="overflow:auto"><table><tr><th>Batch Number</th><th>Alloy</th><th>Diameter</th><th>No Of Pcs</th><th>Quantity</th><th>Status</th><th>Action</th></tr>
+ ${list.map((r,i)=>`<tr><td>${esc(r.batchNo)}</td><td>${esc(r.alloy)}</td><td>${esc(r.diameter)}</td><td>${esc(r.pcs)}</td><td>${esc(r.quantity)}</td><td><span class="tag">${esc(r.status||"-")}</span></td><td>${canEdit()?`<button class="btn" onclick="sfgModal(${sfgStock.indexOf(r)})">Edit</button> <button class="btn danger" onclick="deleteSfg(${sfgStock.indexOf(r)})">Delete</button>`:"-"}</td></tr>`).join("")||`<tr><td colspan="7" class="muted">No SFG stock records.</td></tr>`}</table></div></div>`;
+}
+function sfgModal(i=null){
+ let r=i===null?{batchNo:"",alloy:"",diameter:"",pcs:0,quantity:0,status:"CUT"}:sfgStock[i];
+ document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox"><h2>${i===null?"Add SFG Stock":"Edit SFG Stock"}</h2>
+ <div class="row"><div><label>Batch Number</label><input id="sfb" value="${esc(r.batchNo)}"></div><div><label>Alloy</label><input id="sfa" value="${esc(r.alloy)}"></div></div>
+ <div class="row"><div><label>Diameter</label><input id="sfd" value="${esc(r.diameter)}" placeholder='e.g. 4"'></div><div><label>No Of Pcs</label><input id="sfp" type="number" min="0" value="${esc(r.pcs||0)}"></div></div>
+ <div class="row"><div><label>Quantity</label><input id="sfq" type="number" min="0" step="0.001" value="${esc(r.quantity||0)}"></div><div><label>Status</label><select id="sfs">${["CUT","Under cutting in Epiq","Ready","Hold","Used"].map(x=>`<option ${r.status===x?"selected":""}>${x}</option>`).join("")}</select></div></div>
+ <div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="saveSfg(${i===null?"null":i})">Save</button><button class="btn" onclick="closeModal()">Cancel</button></div></div></div>`;
+}
+function saveSfg(i){
+ let r={batchNo:sfb.value.trim(),alloy:sfa.value.trim(),diameter:sfd.value.trim(),pcs:Number(sfp.value||0),quantity:Number(sfq.value||0),status:sfs.value};
+ if(!r.batchNo||!r.alloy)return alert("Batch Number and Alloy are required.");
+ if(i===null)sfgStock.unshift(r);else sfgStock[i]=r;
+ saveStock();closeModal();render();cloudSaveStock("saveSfg",r);
+}
+function deleteSfg(i){if(!confirm("Delete this SFG stock record?"))return;let r=sfgStock[i];sfgStock.splice(i,1);saveStock();render();cloudDeleteStock("deleteSfg",r).then(()=>sync())}
+
+function fgPage(){
+ let q=state.q.toLowerCase();
+ let list=fgStock.filter(r=>!q||(Object.values(r).join(" ").toLowerCase().includes(q)));
+ return `<div class="toolbar"><input placeholder="Search batch, alloy, internal alloy or status..." value="${esc(state.q)}" oninput="state.q=this.value;render()">${canEdit()?`<button class="btn primary" style="width:auto;margin:0" onclick="fgModal()">+ Add FG Stock</button>`:""}</div>
+ <div class="panel"><h3>FG STOCK</h3><p class="muted">Tracks received, unpacked, packed, dispatched, defected and available finished-goods stock.</p>
+ <div style="overflow:auto"><table><tr><th>Date</th><th>Batch No.</th><th>Alloy</th><th>Internal Alloy</th><th>Diameter</th><th>Received Pcs</th><th>Unpacked Pcs</th><th>Packed Pcs</th><th>Dispatched Pcs</th><th>Defected Pcs</th><th>Available Stock Pcs</th><th>Arithmetical Weight</th><th>Action</th></tr>
+ ${list.map(r=>`<tr><td>${esc(r.date||"-")}</td><td>${esc(r.batchNo)}</td><td>${esc(r.alloy)}</td><td>${esc(r.internalAlloy)}</td><td>${esc(r.diameter)}</td><td>${esc(r.receivedPcs)}</td><td>${esc(r.unpackedPcs)}</td><td>${esc(r.packedPcs)}</td><td>${esc(r.dispatchedPcs)}</td><td>${esc(r.defectedPcs)}</td><td><b>${esc(r.availableStockPcs)}</b></td><td>${Number(r.weight||0).toFixed(3)}</td><td>${canEdit()?`<button class="btn" onclick="fgModal(${fgStock.indexOf(r)})">Edit</button> <button class="btn danger" onclick="deleteFg(${fgStock.indexOf(r)})">Delete</button>`:"-"}</td></tr>`).join("")||`<tr><td colspan="13" class="muted">No FG stock records.</td></tr>`}</table></div></div>`;
+}
+function fgModal(i=null){
+ let r=i===null?{date:new Date().toISOString().slice(0,10),batchNo:"",alloy:"",internalAlloy:"",diameter:"",receivedPcs:0,unpackedPcs:0,packedPcs:0,dispatchedPcs:0,defectedPcs:0,availableStockPcs:0,weight:0,status:""}:fgStock[i];
+ document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox"><h2>${i===null?"Add FG Stock":"Edit FG Stock"}</h2>
+ <div class="row"><div><label>Date</label><input id="ffd" type="date" value="${esc(r.date||"")}"></div><div><label>Batch No.</label><input id="ffb" value="${esc(r.batchNo)}"></div></div>
+ <div class="row"><div><label>Alloy</label><input id="ffa" value="${esc(r.alloy)}"></div><div><label>Internal Alloy</label><input id="ffi" value="${esc(r.internalAlloy)}"></div></div>
+ <div class="row"><div><label>Diameter</label><input id="ffdmt" value="${esc(r.diameter)}"></div><div><label>Received Pcs</label><input id="ffr" type="number" min="0" value="${esc(r.receivedPcs||0)}"></div></div>
+ <div class="row"><div><label>Unpacked Pcs</label><input id="ffu" type="number" min="0" value="${esc(r.unpackedPcs||0)}"></div><div><label>Packed Pcs</label><input id="ffp" type="number" min="0" value="${esc(r.packedPcs||0)}"></div></div>
+ <div class="row"><div><label>Dispatched Pcs</label><input id="ffdsp" type="number" min="0" value="${esc(r.dispatchedPcs||0)}"></div><div><label>Defected Pcs</label><input id="ffx" type="number" min="0" value="${esc(r.defectedPcs||0)}"></div></div>
+ <div class="row"><div><label>Available Stock Pcs</label><input id="ffav" type="number" min="0" value="${esc(r.availableStockPcs||0)}"></div><div><label>Arithmetical Weight</label><input id="ffw" type="number" min="0" step="0.001" value="${esc(r.weight||0)}"></div></div>
+ <label>Status</label><input id="ffs" value="${esc(r.status||"")}">
+ <div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="saveFg(${i===null?"null":i})">Save</button><button class="btn" onclick="closeModal()">Cancel</button></div></div></div>`;
+}
+function saveFg(i){
+ let r={date:ffd.value,batchNo:ffb.value.trim(),alloy:ffa.value.trim(),internalAlloy:ffi.value.trim(),diameter:ffdmt.value.trim(),receivedPcs:Number(ffr.value||0),unpackedPcs:Number(ffu.value||0),packedPcs:Number(ffp.value||0),dispatchedPcs:Number(ffdsp.value||0),defectedPcs:Number(ffx.value||0),availableStockPcs:Number(ffav.value||0),weight:Number(ffw.value||0),status:ffs.value.trim()};
+ if(!r.batchNo||!r.alloy)return alert("Batch No. and Alloy are required.");
+ if(i===null)fgStock.unshift(r);else fgStock[i]=r;
+ saveStock();closeModal();render();cloudSaveStock("saveFg",r);
+}
+function deleteFg(i){if(!confirm("Delete this FG stock record?"))return;let r=fgStock[i];fgStock.splice(i,1);saveStock();render();cloudDeleteStock("deleteFg",r).then(()=>sync())}
+
+function parseHomoDateTime(v){
+ if(!v)return null;
+ v=String(v).trim();
+ // Supports YYYY-MM-DD HH:MM AM/PM and HH:MM AM/PM.
+ let m=v.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+ if(m){
+  let h=Number(m[4]); const ap=m[6].toUpperCase();
+  if(h===12)h=0;if(ap==="PM")h+=12;
+  return new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),h,Number(m[5]));
+ }
+ m=v.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+ if(m){
+  let h=Number(m[1]); const ap=m[3].toUpperCase();
+  if(h===12)h=0;if(ap==="PM")h+=12;
+  const d=new Date();d.setHours(h,Number(m[2]),0,0);return d;
+ }
+ const d=new Date(v);return isNaN(d)?null:d;
+}
+function formatHomoTime(v){
+ if(!v)return "";
+ const d=parseHomoDateTime(v);
+ if(!d)return String(v);
+ let h=d.getHours(),ap=h>=12?"PM":"AM";h=h%12||12;
+ return `${String(h).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")} ${ap}`;
+}
+function homoDuration(inTime,outTime){
+ if(!inTime)return "-";
+ const a=parseHomoDateTime(inTime),b=outTime?parseHomoDateTime(outTime):new Date();
+ if(!a||!b||b<a)return "-";
+ const mins=Math.floor((b-a)/60000),d=Math.floor(mins/1440),h=Math.floor((mins%1440)/60),m=mins%60;
+ return (d?d+"d ":"")+(h?h+"h ":"")+m+"m";
+}
+function defaultHomoTime(){
+ const d=new Date(),h=d.getHours()%12||12,ap=d.getHours()>=12?"PM":"AM";
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${String(h).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")} ${ap}`;
+}
+function normalizeHomoTime(v){
+ if(!v)return "";
+ const d=parseHomoDateTime(v); if(!d)return String(v).trim();
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${formatHomoTime(d)}`;
+}
+function homoPage(){
+ return `<div class="toolbar">${canEdit()?`<button class="btn primary" style="width:auto;margin:0" onclick="homoModal()">+ Add HOMO Detail</button>`:""}</div>
+ <div class="panel"><h3>CURRENT HOMO DETAILS</h3>
+ <p class="muted">HOMO In Time = batch entered HOMO. HOMO Out Time = batch came out of HOMO. AM/PM format is used. Duration can be edited manually.</p>
+ <div style="overflow:auto"><table><tr>
+ <th>Batch Number</th><th>Alloy</th><th>Diameter</th><th>No Of Pcs</th><th>Quantity</th><th>Status</th><th>Charge No.</th>
+ <th>HOMO IN TIME</th><th>HOMO OUT TIME</th><th>HOMO DURATION</th><th>Action</th></tr>
+ ${homoDetails.map((r,i)=>`<tr>
+ <td>${esc(r.batchNo)}</td><td>${esc(r.alloy)}</td><td>${esc(r.diameter)}</td><td>${esc(r.pcs)}</td><td>${esc(r.quantity)}</td>
+ <td>${esc(r.status)}</td><td>${esc(r.chargeNo)}</td>
+ <td><b>${esc(r.inTime?formatHomoTime(r.inTime):"-")}</b></td>
+ <td><b>${esc(r.outTime?formatHomoTime(r.outTime):"-")}</b></td>
+ <td><b>${esc(r.duration||homoDuration(r.inTime,r.outTime))}</b></td>
+ <td>${canEdit()?`<button class="btn" onclick="homoModal(${i})">Edit</button> <button class="btn danger" onclick="deleteHomo(${i})">Delete</button>`:"-"}</td>
+ </tr>`).join("")||`<tr><td colspan="11" class="muted">No current HOMO records.</td></tr>`}</table></div></div>`;
+}
+function homoModal(i=null){
+ let r=i===null
+  ?{batchNo:"",alloy:"",diameter:"",pcs:0,quantity:0,status:"HOMO 1",chargeNo:"",inTime:defaultHomoTime(),outTime:"",duration:""}
+  :homoDetails[i];
+ document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox"><h2>${i===null?"Add HOMO Detail":"Edit HOMO Detail"}</h2>
+ <div class="row"><div><label>Batch Number</label><input id="hdb" value="${esc(r.batchNo)}"></div><div><label>Alloy</label><input id="hda" value="${esc(r.alloy)}"></div></div>
+ <div class="row"><div><label>Diameter</label><input id="hdd" value="${esc(r.diameter)}"></div><div><label>No Of Pcs</label><input id="hdp" type="number" min="0" value="${esc(r.pcs||0)}"></div></div>
+ <div class="row"><div><label>Quantity</label><input id="hdq" type="number" min="0" step="0.001" value="${esc(r.quantity||0)}"></div>
+ <div><label>Status</label><select id="hds">${["HOMO 1","HOMO 2","Cooling","Hold","Completed"].map(x=>`<option ${r.status===x?"selected":""}>${x}</option>`).join("")}</select></div></div>
+ <div class="row"><div><label>Charge No.</label><input id="hdc" value="${esc(r.chargeNo||"")}"></div>
+ <div><label><b>HOMO IN TIME (AM/PM)</b></label><input id="hdin" placeholder="YYYY-MM-DD 09:15 AM" value="${esc(r.inTime?normalizeHomoTime(r.inTime):"")}"></div></div>
+ <div class="row"><div><label><b>HOMO OUT TIME (AM/PM)</b></label><input id="hdout" placeholder="YYYY-MM-DD 05:30 PM" value="${esc(r.outTime?normalizeHomoTime(r.outTime):"")}"></div>
+ <div><label><b>HOMO DURATION (EDITABLE)</b></label><input id="hddur" placeholder="e.g. 8h 15m" value="${esc(r.duration||homoDuration(r.inTime,r.outTime))}"></div></div>
+ <div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="saveHomo(${i===null?"null":i})">Save</button><button class="btn" onclick="closeModal()">Cancel</button></div>
+ </div></div>`;
+}
+function saveHomo(i){
+ let inTime=normalizeHomoTime(hdin.value),outTime=normalizeHomoTime(hdout.value),duration=hddur.value.trim();
+ if(!inTime)return alert("HOMO In Time is required. Use AM/PM, e.g. 2026-08-30 09:15 AM.");
+ if(!parseHomoDateTime(inTime))return alert("Invalid HOMO In Time. Use YYYY-MM-DD hh:mm AM/PM.");
+ if(outTime&&!parseHomoDateTime(outTime))return alert("Invalid HOMO Out Time. Use YYYY-MM-DD hh:mm AM/PM.");
+ if(outTime&&parseHomoDateTime(outTime)<parseHomoDateTime(inTime))return alert("HOMO Out Time cannot be earlier than HOMO In Time.");
+ if(hds.value==="Completed"&&!outTime)outTime=normalizeHomoTime(defaultHomoTime());
+ if(!duration)duration=homoDuration(inTime,outTime);
+ let r={batchNo:hdb.value.trim(),alloy:hda.value.trim(),diameter:hdd.value.trim(),pcs:Number(hdp.value||0),quantity:Number(hdq.value||0),
+ status:hds.value,chargeNo:hdc.value.trim(),inTime,outTime,duration};
+ if(!r.batchNo||!r.alloy)return alert("Batch Number and Alloy are required.");
+ if(i===null)homoDetails.unshift(r);else homoDetails[i]=r;
+ saveStock();closeModal();render();cloudSaveStock("saveHomo",r);
+}
+function deleteHomo(i){if(!confirm("Delete this HOMO record?"))return;let r=homoDetails[i];homoDetails.splice(i,1);saveStock();render();cloudDeleteStock("deleteHomo",r).then(()=>sync())}
+
+function productionSummaryModal(i=null){
+ let r=i===null?{batchNo:"",alloy:"",remarks:"",totalCast:0,dispatch:0,fg:0,sfg:0,total:0,diff:0,rejection:0}:productionSummary[i];
+ document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox"><h2>${i===null?"Add Production Summary":"Edit Production Summary"}</h2>
+ <div class="row"><div><label>Batch No.</label><input id="psb" value="${esc(r.batchNo)}"></div><div><label>Alloy</label><input id="psa" value="${esc(r.alloy)}"></div></div>
+ <label>Remarks</label><input id="psr" value="${esc(r.remarks||"")}">
+ <div class="row"><div><label>Total Cast</label><input id="pst" type="number" min="0" value="${esc(r.totalCast||0)}"></div><div><label>Dispatch</label><input id="psd" type="number" min="0" value="${esc(r.dispatch||0)}"></div></div>
+ <div class="row"><div><label>FG</label><input id="psf" type="number" min="0" value="${esc(r.fg||0)}"></div><div><label>SFG</label><input id="pss" type="number" min="0" value="${esc(r.sfg||0)}"></div></div>
+ <div class="row"><div><label>Total</label><input id="pstt" type="number" min="0" value="${esc(r.total||0)}"></div><div><label>Diff</label><input id="psdf" type="number" value="${esc(r.diff||0)}"></div></div>
+ <label>Rejection</label><input id="psrej" type="number" min="0" value="${esc(r.rejection||0)}">
+ <div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="saveProductionSummary(${i===null?"null":i})">Save</button><button class="btn" onclick="closeModal()">Cancel</button></div></div></div>`;
+}
+function saveProductionSummary(i){
+ let r={batchNo:psb.value.trim(),alloy:psa.value.trim(),remarks:psr.value.trim(),totalCast:Number(pst.value||0),dispatch:Number(psd.value||0),fg:Number(psf.value||0),sfg:Number(pss.value||0),total:Number(pstt.value||0),diff:Number(psdf.value||0),rejection:Number(psrej.value||0)};
+ if(!r.batchNo)return alert("Batch No. is required.");
+ if(i===null)productionSummary.unshift(r);else productionSummary[i]=r;
+ saveStock();closeModal();render();cloudSaveStock("saveProductionSummary",r);
+}
+async function cloudSaveStock(kind,record){
+ if(!cfg.apiUrl||!sessionToken)return;
+ try{const r=await api("saveStock",{kind,record});if(!r.ok)alert(r.error||"Cloud stock save failed.");else sync()}catch(x){alert("Secure server unavailable. Local copy saved, cloud copy not changed.")}
+}
+async function cloudDeleteStock(kind,record){
+ if(!cfg.apiUrl||!sessionToken)return;
+ try{const r=await api("deleteStock",{kind,record});if(!r.ok)alert(r.error||"Cloud stock delete failed.");}catch(x){alert("Secure server unavailable. Cloud record was not deleted.")}
+}
+
+function customersPage(){
+ if(!admin())return `<div class="notice">Only the Admin can manage customers.</div>`;
+ return `<div class="panel"><h3>Customers & Requirements</h3>
+ <p class="muted">Maintain each customer/company and their standard requirements. These can be used while creating batches.</p>
+ <button class="btn primary" style="width:auto;margin:0" onclick="customerModal()">+ Add Customer</button>
+ <div style="overflow:auto;margin-top:16px"><table><tr>
+ <th>Customer / Company</th><th>Size (in)</th><th>Alloy</th><th>Internal Alloy Code</th>
+ <th>No. of Billets</th><th>Cast Wt (MT)</th><th>Target Time</th><th>Ready Date</th>
+ <th>Cut Off</th><th>ETD</th><th>Requirement</th><th>Action</th></tr>
+ ${customers.map((c,i)=>`<tr>
+ <td><b>${esc(c.name)}</b></td><td>${esc(c.size||"-")}</td><td>${esc(c.alloy||"-")}</td>
+ <td>${esc(c.internalAlloyCode||"-")}</td><td>${esc(c.billets||"-")}</td><td>${Number(c.castWt||0).toFixed(3)}</td>
+ <td>${esc(c.targetTime||"-")}</td><td>${esc(c.readyDate||"-")}</td><td>${esc(c.cutOff||"-")}</td>
+ <td>${c.etd?fmt(c.etd):"-"}</td><td>${esc(c.requirement||"-")}</td>
+ <td><button class="btn" onclick="customerModal(${i})">Edit</button> <button class="btn danger" onclick="deleteCustomer(${i})">Delete</button></td>
+ </tr>`).join("")||`<tr><td colspan="12" class="muted">No customers added.</td></tr>`}
+ </table></div></div>`;
+}
+function customerModal(i=null){
+ let c=i===null?{name:"",size:"",alloy:"",internalAlloyCode:"",billets:"",castWt:"",targetTime:"",readyDate:"",cutOff:"",etd:"",requirement:""}:customers[i];
+ document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox"><h2>${i===null?"Add Customer":"Edit Customer"}</h2>
+ <label>Customer / Company Name</label><input id="cn" value="${esc(c.name)}" placeholder="e.g. June Fonex">
+ <div class="row"><div><label>Size (in)</label><input id="csz" type="number" step="0.1" value="${esc(c.size||"")}"></div><div><label>Alloy</label><input id="cal" value="${esc(c.alloy||"")}"></div></div>
+ <div class="row"><div><label>Internal Alloy Code</label><input id="cic" value="${esc(c.internalAlloyCode||"")}"></div><div><label>No. of Billets</label><input id="cbi" type="number" min="0" step="1" value="${esc(c.billets||"")}"></div></div>
+ <div class="row"><div><label>Cast Wt (MT)</label><input id="ccw" type="number" min="0" step="0.001" value="${esc(c.castWt||"")}"></div><div><label>Target Time</label><input id="ctt" type="time" value="${esc(c.targetTime||"")}"></div></div>
+ <div class="row"><div><label>Ready Date</label><input id="crd" type="date" value="${esc(c.readyDate||"")}"></div><div><label>Cut Off</label><input id="cco" type="time" value="${esc(c.cutOff||"")}"></div></div>
+ <label>ETD</label><input id="cetd" type="datetime-local" value="${c.etd?new Date(c.etd).toISOString().slice(0,16):""}">
+ <label>Customer Requirement</label><textarea id="cr" rows="4" placeholder="Delivery / product / special requirement">${esc(c.requirement||"")}</textarea>
+ <div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="saveCustomer(${i===null?"null":i})">Save Customer</button><button class="btn" onclick="closeModal()">Cancel</button></div></div></div>`;
+}
+function saveCustomer(i){
+ let name=cn.value.trim();
+ if(!name)return alert("Customer/company name is required.");
+ if(customers.some((c,j)=>j!==i&&c.name.toLowerCase()===name.toLowerCase()))return alert("Customer already exists.");
+ let c={name,size:csz.value,alloy:cal.value.trim(),internalAlloyCode:cic.value.trim(),billets:cbi.value,castWt:Number(ccw.value||0),targetTime:ctt.value,readyDate:crd.value,cutOff:cco.value,etd:cetd.value?new Date(cetd.value).toISOString():"",requirement:cr.value.trim()};
+ if(i===null)customers.push(c);
+ else{
+   let old=customers[i].name;customers[i]=c;
+   batches.forEach(b=>{if(b.customer===old)b.customer=name});
+ }
+ saveCustomers();save();closeModal();render();cloudSaveCustomer(c).then(ok=>{if(ok)sync()});
+}
+function deleteCustomer(i){
+ let name=customers[i].name;
+ if(batches.some(b=>b.customer===name))return alert("This customer is linked to one or more batches. Edit those batches first.");
+ if(confirm("Delete customer "+name+"?")){let c=customers[i];customers.splice(i,1);saveCustomers();render();cloudDeleteCustomer(c).then(()=>sync())}
+}
+async function cloudSaveCustomer(c){if(!cfg.apiUrl||!sessionToken)return true;try{const r=await api("saveCustomer",{customer:c});if(!r.ok){alert(r.error||"Cloud customer save failed.");return false}return true}catch(x){alert("Secure server unavailable. Cloud customer was not changed.");return false}}
+async function cloudDeleteCustomer(c){if(!cfg.apiUrl||!sessionToken)return;try{const r=await api("deleteCustomer",{name:c.name});if(!r.ok)alert(r.error||"Cloud customer delete failed.")}catch(x){alert("Secure server unavailable. Cloud customer was not deleted.")}}
+
+function usersPage(){
+ if(!admin())return `<div class="notice">Only the Admin can manage users.</div>`;
+ return `<div class="panel"><h3>Users & Passwords</h3><p class="muted">Each employee can have their own login. New self-registered accounts start as Operator.</p><button class="btn primary" style="width:auto;margin:0" onclick="userModal()">+ Add User</button><div style="overflow:auto;margin-top:16px"><table><tr><th>Name</th><th>Username</th><th>Mobile</th><th>Role</th><th>Action</th></tr>${users.map((u,i)=>`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td>${esc(u.mobile||"-")}</td><td>${esc(u.role)}</td><td>${u.username==="Aman132"?"Main Admin":`<button class="btn" onclick="userModal(${i})">Edit</button> <button class="btn danger" onclick="delUser(${i})">Delete</button>`}</td></tr>`).join("")}</table></div></div>`;
+}
+function googlePage(){
+ if(!admin())return `<div class="notice">Only the Admin can configure the Google Sheet connection.</div>`;
+ return `<div class="notice warning"><b>For true live multi-device sync:</b> the Google Sheet should be connected through the included Google Apps Script backend. A pasted Sheet URL alone cannot securely update a private company sheet.</div>
+ <div class="panel"><h3>Google Sheet Connection</h3><label>Google Sheet URL</label><input id="sheet" value="${esc(cfg.sheetUrl||"")}" placeholder="https://docs.google.com/spreadsheets/d/..."><label>Apps Script Web App URL</label><input id="api" value="${esc(cfg.apiUrl||"")}" placeholder="https://script.google.com/macros/s/.../exec"><div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="saveCfg()">Save Connection</button><button class="btn" onclick="sync()">Sync Now</button><button class="btn" onclick="openSheet()">Open Sheet</button></div><p class="muted" id="syncmsg" style="margin-top:12px">${cfg.lastSync?"Last sync: "+new Date(cfg.lastSync).toLocaleString():"Not synced yet."}</p></div>
+ <div class="panel"><h3>Required Sheet Tabs</h3><p class="muted">The included backend automatically creates <b>Users</b> and <b>Batches</b> tabs. This lets the same accounts and batch data work on different phones and computers.</p></div>`;
+}
+function settingsPage(){return `<div class="panel"><h3>App Setup & Security</h3><p class="muted">Use Secure Cloud mode for company data, multi-device sync, server-side permissions and session timeout.</p><div class="notice">Current mode: <b>${cfg.apiUrl?"Secure Cloud":"Local Demo"}</b></div>
+<div class="panel"><h3>Google Sheet Connection</h3><p class="muted">Configure the Apps Script Web App URL from the Google Sheet section. Never publish the backend as a public data endpoint for confidential production use.</p></div></div>`}
+function applyCustomerDefaults(){
+ const name=bcu.value.trim(), c=customers.find(x=>x.name.toLowerCase()===name.toLowerCase());if(!c)return alert("This is a new customer. Add it first or save the batch.");
+ if(c.size)bsize.value=c.size;if(c.alloy)balloy.value=c.alloy;if(c.internalAlloyCode)bcode.value=c.internalAlloyCode;
+ if(c.billets)bt.value=c.billets;if(c.castWt)bm.value=c.castWt;if(c.targetTime)btm.value=c.targetTime;
+ if(c.readyDate)bready.value=c.readyDate;if(c.cutOff)bcutoff.value=c.cutOff;if(c.etd)betd.value=new Date(c.etd).toISOString().slice(0,16);
+ if(c.requirement)breq.value=c.requirement;
+ alert("Customer requirements applied.");
+}
+function newCustomerFromNewBatch(){
+ const name=bcu.value.trim();
+ if(!name)return alert("Enter the new customer/company name first.");
+ if(customers.some(c=>c.name.toLowerCase()===name.toLowerCase()))return alert("This customer already exists.");
+ let c={name,requirement:""};customers.push(c);saveCustomers();cloudSaveCustomer(c).then(()=>sync());alert("New customer added. You can now use this customer for the batch.");
+}
+function openBatch(){document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox"><h2>New Batch</h2><div class="row"><div><label>Batch Number</label><input id="bb"></div><div><label>Customer</label><select id="bcu"><option value="">Select Customer</option>${customers.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join("")}</select><button type="button" class="btn" style="margin-top:8px" onclick="newCustomerFromNewBatch()">+ Add New Customer</button></div></div>
+ <button type="button" class="btn" style="margin-top:8px" onclick="applyCustomerDefaults()">Apply Customer Requirements</button>
+ <label>Alloy / Product</label><input id="bp">
+ <div class="row"><div><label>Total Billets</label><input id="bt" type="number" min="0" step="1" placeholder="e.g. 120"></div><div><label>Rejected Billets</label><input id="bj" type="number" min="0" step="1" placeholder="e.g. 3"></div></div>
+ <div class="row"><div><label>Billet Weight (Metric Ton)</label><input id="bm" type="number" min="0" step="0.001" placeholder="e.g. 24.650"></div><div><label>Quantity / Description</label><input id="bq"></div></div>
+ <div class="row"><div><label>Target Date</label><input id="bd" type="date"></div><div><label>Target Time</label><input id="btm" type="time"></div></div>
+ <label>Customer Requirement</label><textarea id="breq" rows="3" placeholder="Customer target / requirement"></textarea>
+ <label>Charge Number</label><input id="bc"><label>Starting Stage</label><select id="bs">${STAGES.map(s=>`<option>${s}</option>`).join("")}</select><label>Remarks</label><textarea id="br" rows="3"></textarea><div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="createBatch()">Create Batch</button><button class="btn" onclick="closeModal()">Cancel</button></div></div></div>`}
+function createBatch(){let createdAt=now();let totalBillets=Number(bt.value||0),rejectedBillets=Number(bj.value||0),billetMT=Number(bm.value||0);if(rejectedBillets>totalBillets)return alert("Rejected billets cannot be greater than total billets.");let b={id:crypto.randomUUID?crypto.randomUUID():Date.now()+"",batch:bb.value.trim(),qty:bq.value.trim(),product:bp.value.trim(),customer:bcu.value,customerRequirement:breq.value.trim(),targetDate:bd.value,targetTime:btm.value,charge:bc.value.trim(),stage:bs.value,remarks:br.value.trim(),totalBillets,rejectedBillets,billetMT,hold:false,created:createdAt,updated:createdAt,timings:{}};startTiming(b,b.stage,createdAt);if(!b.batch||!b.product)return alert("Batch Number and Alloy/Product are required.");if(batches.some(x=>x.batch.toLowerCase()===b.batch.toLowerCase()))return alert("Batch already exists.");batches.unshift(b);save();closeModal();render();cloudSaveBatch(b).then(ok=>{if(ok)sync()})}
+async function cloudSaveBatch(b){
+ if(!cfg.apiUrl||!sessionToken)return true;
+ try{const r=await api("saveBatch",{batch:b});if(!r.ok){alert(r.error||"Cloud save failed.");return false}return true}catch(x){alert("Secure server unavailable. Cloud data was not changed.");return false}
+}
+async function cloudDeleteBatch(b){
+ if(!cfg.apiUrl||!sessionToken)return;
+ try{const r=await api("deleteBatch",{id:b.id});if(!r.ok)alert(r.error||"Cloud delete failed.");}
+ catch(x){alert("Secure server unavailable. Cloud batch was not deleted.")}
+}
+function nextStage(id){
+ let b=batches.find(x=>x.id===id);if(!b||b.hold)return;
+ let i=STAGES.indexOf(b.stage);if(i<0||i>=STAGES.length-1)return;
+ let ts=now(), oldStage=b.stage, next=STAGES[i+1];
+ ensureTiming(b);finishTiming(b,oldStage,ts);startTiming(b,next,ts);
+ b.stage=next;b.updated=ts;
+ if(next==="Dispatch")b.dispatchTime=ts;
+ save();render();cloudSaveBatch(b).then(ok=>{if(ok)sync()});
+}
+function toggleHold(id){let b=batches.find(x=>x.id===id);if(!b)return;b.hold=!b.hold;b.holdReason=b.hold?prompt("Reason for hold:")||"No reason given":"";b.updated=new Date().toISOString();save();render();cloudSaveBatch(b).then(ok=>{if(ok)sync()})}
+function viewBatch(id){
+ let b=batches.find(x=>x.id===id);if(!b)return;ensureTiming(b);
+ let rows=STAGES.map((s,i)=>{
+   let t=b.timings[s], isCurrent=b.stage===s;
+   return `<tr><td><b>${i+1}. ${esc(s)}</b></td><td>${t?fmt(t.start):"-"}</td><td>${t&&t.end?fmt(t.end):(isCurrent?"Running":"-")}</td><td>${t&&t.durationMs?duration(t.durationMs):(isCurrent?duration(new Date()-new Date(t?.start||b.updated)):"-")}</td><td><button class="btn" onclick="editTiming('${b.id}','${s}')">Edit</button></td></tr>`;
+ }).join("");
+ document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox">
+ <h2>${esc(b.batch)}</h2><p class="muted">${esc(b.product)} · Charge ${esc(b.charge||"-")}</p>
+ <div class="actions">
+   ${canEdit()?`<button class="btn primary" style="width:auto;margin:0" onclick="editBatch('${b.id}')">Edit Batch</button>`:""}
+   ${canEdit()?`<button class="btn danger" onclick="deleteBatch('${b.id}')">Delete Batch</button>`:""}
+   <button class="btn" onclick="closeModal()">Close</button>
+ </div>
+ <div class="panel"><b>Current Status:</b> ${b.hold?"ON HOLD":esc(b.stage)}<br>
+ <b>Total Process Time:</b> ${totalProcessTime(b)}<br>
+ <b>Created:</b> ${fmt(b.created)}<br>
+ <b>Last Updated:</b> ${fmt(b.updated)}${b.dispatchTime?`<br><b>Dispatch Time:</b> ${fmt(b.dispatchTime)}`:""}
+ </div>
+ <div class="panel"><h3>Stage Timing</h3><p class="muted">Timing can be automatic or manually corrected by an authorized user.</p>
+ <div style="overflow:auto"><table><tr><th>Stage</th><th>Started</th><th>Completed</th><th>Duration</th><th>Action</th></tr>${rows}</table></div>
+ <button class="btn" style="margin-top:10px" onclick="addTiming('${b.id}')">+ Add / Set Timing</button></div>
+ <div class="panel"><h3>Batch Summary</h3>
+ <p class="muted">Batch <b>${esc(b.batch)}</b> started at <b>${fmt(b.created)}</b>, is currently at <b>${b.hold?"ON HOLD":esc(b.stage)}</b>, and has spent approximately <b>${totalProcessTime(b)}</b> in the process.</p>
+ <p class="muted">Customer: <b>${esc(b.customer||"No Customer")}</b> · Target: <b>${esc(b.targetDate||"-")} ${esc(b.targetTime||"")}</b> · Target Status: <b>${targetStatus(b).text}</b></p>
+ <p class="muted">Requirement: <b>${esc(b.customerRequirement||"-")}</b></p>
+ <p class="muted">Quantity: <b>${esc(b.qty||"-")}</b> · Alloy/Product: <b>${esc(b.product)}</b> · Charge: <b>${esc(b.charge||"-")}</b></p>
+ <p class="muted">Total Billets: <b>${Number(b.totalBillets||0)}</b> · Rejected Billets: <b>${Number(b.rejectedBillets||0)}</b> · Accepted Billets: <b>${Math.max(0,Number(b.totalBillets||0)-Number(b.rejectedBillets||0))}</b> · Billet Metric Ton: <b>${Number(b.billetMT||0).toFixed(3)} MT</b></p>
+ <p class="muted">Remarks: ${esc(b.remarks||"-")}</p></div>
+ </div></div>`;
+}
+function editBatch(id){
+ editBatchId=id;
+ let b=batches.find(x=>x.id===id);if(!b)return;
+ document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox"><h2>Edit Batch</h2>
+ <label>Batch Number</label><input id="ebn" value="${esc(b.batch)}">
+ <div class="row"><div><label>Customer / Company</label>
+ <input id="ecu" list="customerListEdit" value="${esc(b.customer||"")}" placeholder="Select existing or type a new customer name">
+ <datalist id="customerListEdit">${customers.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join("")}</datalist>
+ <button type="button" class="btn" style="margin-top:8px" onclick="applyEditCustomerDefaults()">Apply Customer Requirements</button>
+ <button type="button" class="btn" style="margin-top:8px" onclick="newCustomerFromBatchEdit()">+ Add New Customer</button>
+ <label>Alloy / Product</label><input id="ebp" value="${esc(b.product)}"></div><div><label>Quantity / Description</label><input id="ebq" value="${esc(b.qty||"")}"></div></div>
+ <div class="row"><div><label>Total Billets</label><input id="ebt" type="number" min="0" step="1" value="${esc(b.totalBillets||0)}"></div><div><label>Rejected Billets</label><input id="ebj" type="number" min="0" step="1" value="${esc(b.rejectedBillets||0)}"></div></div>
+ <div class="row"><div><label>Billet Weight (Metric Ton)</label><input id="ebm" type="number" min="0" step="0.001" value="${esc(b.billetMT||0)}"></div><div><label>Charge Number</label><input id="ebc" value="${esc(b.charge||"")}"></div></div>
+ <label>Stage</label><select id="ebs">${STAGES.map(s=>`<option ${b.stage===s?"selected":""}>${s}</option>`).join("")}</select>
+ <div class="row"><div><label>Target Date</label><input id="ed" type="date" value="${esc(b.targetDate||"")}"></div><div><label>Target Time</label><input id="etm" type="time" value="${esc(b.targetTime||"")}"></div></div>
+ <label>Customer Requirement</label><textarea id="ereq" rows="3">${esc(b.customerRequirement||"")}</textarea>
+ <label>Remarks</label><textarea id="ebr" rows="3">${esc(b.remarks||"")}</textarea>
+ <div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="saveBatchEdit('${b.id}')">Save Changes</button><button class="btn" onclick="viewBatch('${b.id}')">Cancel</button></div>
+ </div></div>`;
+}
+function applyEditCustomerDefaults(){
+ const name=ecu.value.trim(), c=customers.find(x=>x.name.toLowerCase()===name.toLowerCase());
+ if(!c)return alert("This is a new customer. Save the batch first, or add the customer from Customers.");
+ if(c.billets)ebt.value=c.billets;if(c.castWt)ebm.value=c.castWt;if(c.targetTime)etm.value=c.targetTime;
+ if(c.requirement)ereq.value=c.requirement;
+ alert("Customer requirements applied.");
+}
+function newCustomerFromBatchEdit(){
+ const name=ecu.value.trim();
+ if(!name)return alert("Enter the new customer/company name first.");
+ if(customers.some(c=>c.name.toLowerCase()===name.toLowerCase()))return alert("This customer already exists.");
+ customers.push({name,requirement:""});
+ saveCustomers(); render(); editBatch(editBatchId);
+}
+function saveBatchEdit(id){
+ let b=batches.find(x=>x.id===id);if(!b)return;
+ let num=ebn.value.trim(),oldStage=b.stage,newStage=ebs.value,ts=now();
+ if(!num||!ebp.value.trim())return alert("Batch Number and Alloy/Product are required.");
+ if(batches.some(x=>x.id!==id&&x.batch.toLowerCase()===num.toLowerCase()))return alert("Another batch already has this number.");
+ if(oldStage!==newStage){
+   ensureTiming(b);finishTiming(b,oldStage,ts);startTiming(b,newStage,ts);
+   if(newStage==="Dispatch")b.dispatchTime=ts;
+ }
+ let totalBillets=Number(ebt.value||0),rejectedBillets=Number(ebj.value||0);if(rejectedBillets>totalBillets)return alert("Rejected billets cannot be greater than total billets.");b.batch=num;b.customer=ecu.value;b.qty=ebq.value.trim();b.charge=ebc.value.trim();b.product=ebp.value.trim();b.targetDate=ed.value;b.targetTime=etm.value;b.customerRequirement=ereq.value.trim();b.totalBillets=totalBillets;b.rejectedBillets=rejectedBillets;b.billetMT=Number(ebm.value||0);b.stage=newStage;b.remarks=ebr.value.trim();b.updated=ts;
+ save();closeModal();render();cloudSaveBatch(b).then(ok=>{if(ok)sync()});
+}
+function deleteBatch(id){
+ if(!canEdit())return;
+ let b=batches.find(x=>x.id===id);if(!b)return;
+ if(confirm("Delete batch "+b.batch+"? This cannot be undone.")){batches=batches.filter(x=>x.id!==id);save();closeModal();render();cloudDeleteBatch(b).then(()=>sync());}
+}
+function addTiming(id){
+ let b=batches.find(x=>x.id===id);if(!b)return;
+ document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox"><h2>Add / Set Timing</h2>
+ <label>Stage</label><select id="ts">${STAGES.map(s=>`<option>${s}</option>`).join("")}</select>
+ <label>Start Time</label><input id="tstart" type="datetime-local">
+ <label>End Time</label><input id="tend" type="datetime-local">
+ <div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="saveTiming('${id}')">Save Timing</button><button class="btn" onclick="viewBatch('${id}')">Cancel</button></div></div></div>`;
+}
+function editTiming(id,stage){let b=batches.find(x=>x.id===id);let t=b?.timings?.[stage]||{};addTiming(id);setTimeout(()=>{ts.value=stage;tstart.value=t.start?new Date(t.start).toISOString().slice(0,16):"";tend.value=t.end?new Date(t.end).toISOString().slice(0,16):""},0)}
+function saveTiming(id){
+ let b=batches.find(x=>x.id===id);if(!b)return;let stage=ts.value,start=tstart.value,end=tend.value;
+ if(!start)return alert("Start time is required.");if(end&&new Date(end)<new Date(start))return alert("End time cannot be before start time.");
+ if(!b.timings)b.timings={};b.timings[stage]={start:new Date(start).toISOString(),end:end?new Date(end).toISOString():null,durationMs:end?new Date(end)-new Date(start):null};
+ b.updated=now();if(stage==="Dispatch"&&end)b.dispatchTime=new Date(end).toISOString();
+ save();viewBatch(id);cloudSaveBatch(b).then(ok=>{if(ok)sync()});
+}
+
+function userModal(i=null){let u=i===null?{name:"",username:"",password:"",role:"Operator"}:users[i];document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox"><h2>${i===null?"Add User":"Edit User"}</h2><label>Name</label><input id="xn" value="${esc(u.name)}"><label>Username</label><input id="xu" value="${esc(u.username)}" ${u.username==="Aman132"?"disabled":""}><label>Password</label><input id="xp" type="password" value="${esc(u.password||"")}"><label>Role</label><select id="xr">${["Admin","Supervisor","Operator","QC"].map(r=>`<option ${u.role===r?"selected":""}>${r}</option>`).join("")}</select><label>Mobile Number</label><input id="umobile" type="tel" inputmode="numeric" maxlength="15" placeholder="e.g. 9876543210" value="${esc(u.mobile||"")}"><div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="saveUser(${i===null?"null":i})">Save</button><button class="btn" onclick="closeModal()">Cancel</button></div></div></div>`}
+async function saveUser(i){
+ let name=xn.value.trim(),username=xu.value.trim(),password=xp.value,role=xr.value,mobile=(document.getElementById("umobile")?.value||"").trim();
+ if(!name||!username||!password)return alert("Name, username and password are required.");
+ if(username!=="Aman132"&&!mobile)return alert("Mobile number is required for new users.");
+ if(mobile&&!/^\+?[0-9]{10,15}$/.test(mobile.replace(/[\s-]/g,"")))return alert("Enter a valid mobile number (10-15 digits).");
+ if(password.length<8)return alert("Password must be at least 8 characters.");
+ if(cfg.apiUrl){
+  try{const r=await api("saveUser",{user:{name,username,password,role,mobile}});if(!r.ok)return alert(r.error||"Could not save user.");await sync();closeModal();render();}
+  catch(x){alert("Secure server unavailable.")}
+  return;
+ }
+ if(users.some((u,j)=>j!==i&&u.username.toLowerCase()===username.toLowerCase()))return alert("Username already exists.");
+ if(i===null)users.push({name,username,password,role,mobile:mobile||""});else users[i]={...users[i],name,password,role,mobile:mobile||""};
+ save();closeModal();render();
+}
+function delUser(i){
+ if(users[i]?.username==="Aman132")return alert("The main Admin account cannot be deleted.");
+ const username=users[i].username;if(!confirm("Delete this user?"))return;
+ if(cfg.apiUrl){api("deleteUser",{username}).then(r=>{if(!r.ok)return alert(r.error||"Delete failed.");sync()}).catch(()=>alert("Secure server unavailable."))}
+ else{users.splice(i,1);save();render();}
+}
+function signupModal(){document.getElementById("modal").innerHTML=`<div class="modal"><div class="modalbox"><h2>Create Account</h2><p class="muted">New accounts are Operator accounts. Admin can change the role later.</p><label>Name</label><input id="sn"><label>Username</label><input id="su"><label>Password</label><input id="sp" type="password"><label>Confirm Password</label><input id="sp2" type="password"><label>Mobile Number</label><input id="smobile" type="tel" inputmode="numeric" maxlength="15" placeholder="e.g. 9876543210"><div class="actions"><button class="btn primary" style="width:auto;margin:0" onclick="signup()">Create Account</button><button class="btn" onclick="closeModal()">Cancel</button></div></div></div>`}
+async function signup(){
+ let name=sn.value.trim(),username=su.value.trim(),password=sp.value,mobile=(document.getElementById("smobile")?.value||"").trim();
+ if(!name||!username||!password||!mobile)return alert("Name, username, password and mobile number are required.");
+ if(password!==sp2.value)return alert("Passwords do not match.");
+ if(!/^\+?[0-9]{10,15}$/.test(mobile.replace(/[\s-]/g,"")))return alert("Enter a valid mobile number (10-15 digits).");
+ if(password.length<8)return alert("Password must be at least 8 characters.");
+ try{
+  if(cfg.apiUrl){
+   const r=await api("register",{name,username,password,mobile},false);
+   if(!r.ok)return alert(r.error||"Could not create account.");
+  }else{
+   if(users.some(u=>u.username.toLowerCase()===username.toLowerCase()))return alert("Username already exists.");
+   users.push({name,username,password,role:"Operator",mobile});save();
+  }
+  closeModal();alert("Account created. You can now sign in.");
+ }catch(x){alert("Secure server unavailable. Account was not created.")}
+}
+function closeModal(){document.getElementById("modal").innerHTML=""}
+function saveCfg(){cfg.sheetUrl=document.getElementById("sheet").value.trim();cfg.apiUrl=document.getElementById("api").value.trim();localStorage.setItem("lb_cfg",JSON.stringify(cfg));alert("Connection saved.");render()}
+function openSheet(){if(!cfg.sheetUrl)return alert("Save the Google Sheet URL first.");window.open(cfg.sheetUrl,"_blank")}
+async function api(action,data={},authenticated=true){
+ if(!cfg.apiUrl)throw Error("No secure API URL");
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+ try{const body={action,...data};if(authenticated)body.token=sessionToken;
+  const r=await fetch(cfg.apiUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body),signal:controller.signal});
+  const out=await r.json();if(out.auth===false){sessionToken="";sessionStorage.removeItem("lb_session");state.user=null;render()}return out;
+ }finally{clearTimeout(timer)}
+}
+async function sync(){
+ if(!cfg.apiUrl||!sessionToken)return;
+ try{const r=await api("getData");if(r.ok){batches=r.batches||[];customers=r.customers||[];sfgStock=r.sfgStock||[];fgStock=r.fgStock||[];homoDetails=r.homoDetails||[];productionSummary=r.productionSummary||[];state.user=r.user||state.user;
+  localStorage.setItem("lb_batches",JSON.stringify(batches));localStorage.setItem("lb_customers",JSON.stringify(customers));saveStock();state.apiOnline=true;render()}}
+ catch(x){state.apiOnline=false}
+}
+window.addEventListener("online",sync);
+render();
+</script>
+</body>
+</html>
